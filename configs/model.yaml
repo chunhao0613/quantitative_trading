@@ -1,0 +1,13 @@
+model:
+  name: RandomForestClassifier
+  n_estimators: 300
+  random_state: 42
+validation:
+  method: TimeSeriesSplit
+  n_splits: 5
+metrics:
+  - accuracy
+  - precision
+  - recall
+  - f1
+  - roc_auc

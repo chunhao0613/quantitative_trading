@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv/
+venv/
+.DS_Store
+data/raw/*.parquet
+data/processed/*.parquet
+artifacts/*.joblib
+reports/*.parquet
+note/
+docs/jd_coverage_matrix.md

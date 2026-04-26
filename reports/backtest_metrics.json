@@ -1,0 +1,30 @@
+[
+  {
+    "symbol": "2317",
+    "start_value": 1000000.0,
+    "end_value": 1086910.4748987237,
+    "total_return": 0.0833392449485357,
+    "annual_return": 0.030064357308003727,
+    "max_drawdown": 5.0459814942212375,
+    "sharpe": 0.4048034347789865,
+    "total_trades": 55,
+    "win_rate": 0.45454545454545453,
+    "fee_rate": 0.001425,
+    "tax_rate": 0.003,
+    "slippage_model": "dynamic_atr"
+  },
+  {
+    "symbol": "2618",
+    "start_value": 1000000.0,
+    "end_value": 985198.9021367332,
+    "total_return": -0.014911727092106704,
+    "annual_return": -0.005286057262753954,
+    "max_drawdown": 1.7324019321010322,
+    "sharpe": -1.8838462071837085,
+    "total_trades": 61,
+    "win_rate": 0.3114754098360656,
+    "fee_rate": 0.001425,
+    "tax_rate": 0.003,
+    "slippage_model": "dynamic_atr"
+  }
+]
