@@ -1,80 +1,44 @@
-# Quantitative Trading Phase 1
+# Quantitative Trading Backtest Infrastructure (PoC)
 
-本專案實作第一階段可重現流程：
-- 台股歷史日 K 抓取與清洗
-- 技術特徵工程（RSI、MACD、Bollinger、SMA、ATR）
-- ML 預測隔日漲跌（RandomForest + TimeSeriesSplit）
-- Backtrader 回測（手續費 0.001425、證交稅 0.003、動態滑價）
-- Prometheus 監控端點
+An end-to-end Python pipeline for quantitative factor research and backtesting, specifically designed for the Taiwan Stock Exchange (TWSE).
 
-## 專案結構
-- `src/etl`: 資料抓取/清洗
-- `src/features`: 指標與資料集
-- `src/models`: 訓練與評估
-- `src/backtest`: 回測
-- `src/monitoring`: 指標埋點
-- `scripts/run_phase1.py`: 一鍵執行
-- `docs/phase1_methodology.md`: 方法與金融知識說明
-- `docs/jd_coverage_matrix.md`: JD 對照
+## System Architecture
 
-## 快速開始（本機）
-```powershell
+This repository implements a modular pipeline encompassing Data ETL, Feature Engineering, Machine Learning Evaluation, and Event-driven Backtesting. 
+
+- **ETL Pipeline:** Automated fetching and cleaning of OHLCV data via TWSE/TPEx APIs.
+- **Factor Engineering:** Generation of stationary time-series features (Log Returns, Rolling Z-scored MACD/RSI) and volatility indicators (ATR).
+- **Model Evaluation:** Regularized linear modeling (Ridge) with `TimeSeriesSplit` (gap=5) to prevent data leakage. Factor predictive power is evaluated using Information Coefficient (IC) and Rank IC.
+- **Backtesting Engine:** Built on `Backtrader` with realistic friction models:
+  - Commission: 0.1425%
+  - Transaction Tax: 0.3% (Sell-side)
+  - Slippage: Dynamic ATR-based modeling
+- **Monitoring:** Integration with `prometheus_client` for backtest metric exposure.
+
+## Project Structure
+
+- `src/etl/`: Data extraction and alignment modules.
+- `src/features/`: Feature generation and dataset building.
+- `src/models/`: Model training, IC evaluation, and feature importance extraction.
+- `src/backtest/`: Backtrader strategy definitions and execution.
+- `src/monitoring/`: Prometheus metrics server.
+- `scripts/`: Entry point scripts for pipeline execution.
+
+## Quick Start
+
+### 1. Install Dependencies
+```bash
 pip install -r requirements.txt
+```
+
+### 2. Run the Full Pipeline (Phase 1)
+This will trigger ETL, Feature Engineering, Model Training, and Backtesting sequentially based on the targets defined in `configs/stocks_demo.yaml`.
+```bash
 python scripts/run_phase1.py --config configs/stocks_demo.yaml
 ```
 
-真實資料模式（TWSE API 為主，yfinance 為 fallback，抓過去 3 年）：
-```powershell
-python scripts/run_phase1.py --config configs/stocks.yaml
-```
-
-## `stocks.yaml` 與 `stocks_demo.yaml` 差異
-- `configs/stocks.yaml`:
-	- `data_source: twse`
-	- `force_synthetic: false`
-	- 以 TWSE API 為主，抓 3 年日 K，失敗時會切到 yfinance 備援。
-- `configs/stocks_demo.yaml`:
-	- `data_source: twse`
-	- `force_synthetic: true`
-	- 強制使用合成資料，結果可重現，適合 demo 或離線環境。
-
-兩者其他欄位相同（股票清單、lookback 年數、fallback 行為）。
-
-完成後可查看：
-- `reports/model_report.md`
-- `reports/backtest_report.md`
-- `reports/model_metrics.json`
-- `reports/backtest_metrics.json`
-
-## 啟動監控
-```powershell
-python -m src.monitoring.server --port 8000 --report-dir reports
-```
-
-查看 metrics：
-```powershell
-Invoke-WebRequest http://localhost:8000/metrics
-```
-
-## Docker
-```powershell
-docker build -t qt-phase1 .
-docker run --rm -p 8000:8000 qt-phase1
-```
-
-## 驗證（測試）
-```powershell
-pytest -q
-```
-
-## 重要聲明
-- 本專案提供可重現與可驗證的研究流程，不保證未來市場準確率或獲利。
-- 任何策略上線前，需持續做窗口外驗證與風險控管。
-
-## Notebook 與 PDF
-Notebook 模板：`notebooks/quant_report_template.ipynb`
-
-匯出 PDF（需本機有 Jupyter 與 LaTeX 環境）：
-```powershell
-jupyter nbconvert --to pdf notebooks/quant_report_template.ipynb
-```
+### 3. Output Artifacts
+All generated reports and performance charts are exported to the `reports/` directory, including:
+- `model_report.md` (IC / Rank IC metrics)
+- `backtest_report.md` (Sharpe Ratio, MDD, Returns)
+- `*_equity_curve.png` (Visualized performance against Buy & Hold benchmark)
