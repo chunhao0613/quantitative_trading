@@ -35,7 +35,7 @@ class MLSignalStrategy(bt.Strategy):
         ("slip_atr_mult", 0.2),
         ("min_slip", 0.0002),
         ("max_slip", 0.01),
-        ("stake", 1000),
+        ("invest_pct", 0.95), # 使用 95% 的資金買入
     )
 
     def __init__(self):
@@ -58,9 +58,11 @@ class MLSignalStrategy(bt.Strategy):
         )
 
         if not self.position and self.data.signal[0] > 0:
-            self.order = self.buy(size=self.p.stake)
+            # 業界標準做法：動態部位控管 (按總資金比例買入)
+            self.order = self.order_target_percent(target=self.p.invest_pct)
         elif self.position and self.data.signal[0] <= 0:
-            self.order = self.sell(size=self.p.stake)
+            # 平倉所有部位
+            self.order = self.close()
 
     def notify_order(self, order):
         if order.status in [order.Completed, order.Canceled, order.Margin, order.Rejected]:

@@ -55,8 +55,8 @@ def run_single_backtest(signal_file: Path, clean_file: Path, initial_cash: float
     else:
         eq_df = pd.DataFrame(columns=["date", "equity"])
 
-    total_trades = int(trades.total.closed) if hasattr(trades, "total") and hasattr(trades.total, "closed") else 0
-    won = int(trades.won.total) if hasattr(trades, "won") and hasattr(trades.won, "total") else 0
+    total_trades = int(trades.get("total", {}).get("closed", 0))
+    won = int(trades.get("won", {}).get("total", 0))
     win_rate = (won / total_trades) if total_trades > 0 else 0.0
 
     symbol = signal_file.name.split("_")[0]
